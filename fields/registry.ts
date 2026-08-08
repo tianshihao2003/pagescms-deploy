@@ -12,6 +12,9 @@ import * as selectField from "@/fields/core/select";
 import * as stringField from "@/fields/core/string";
 import * as textField from "@/fields/core/text";
 import * as uuidField from "@/fields/core/uuid";
+// 自定义字段（fields/custom/ 下的模块，手动注册）
+import * as imgbedField from "@/fields/custom/imgbed";
+import * as amapGeocodeField from "@/fields/custom/amap-geocode";
 
 type FieldModule = {
   label?: string;
@@ -56,5 +59,7 @@ registerField("select", selectField);
 registerField("string", stringField);
 registerField("text", textField);
 registerField("uuid", uuidField);
+registerField("imgbed", imgbedField);
+registerField("amap-geocode", amapGeocodeField);
 
 export { labels, schemas, readFns, writeFns, defaultValues, editComponents, viewComponents, fieldTypes };
