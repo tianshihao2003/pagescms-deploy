@@ -91,7 +91,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@better-auth/cli": "^1.4.21",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/lodash.merge": "^4.6.9",
     "@types/lodash.mergewith": "^4.6.9",
