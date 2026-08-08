@@ -122,6 +122,15 @@ export async function POST(
 
             let finalContentObject = JSON.parse(JSON.stringify(unwrappedContentObject));
 
+            // 自定义：amap-geocode 字段展开为顶层 lat/lng（zod 要求 lat/lng 是顶层键）
+            // 保存前把嵌套的 amap-coords 展开并删除辅助键
+            const amapCoords = finalContentObject["amap-coords"];
+            if (amapCoords && typeof amapCoords.lat === "number" && typeof amapCoords.lng === "number") {
+              finalContentObject.lat = amapCoords.lat;
+              finalContentObject.lng = amapCoords.lng;
+              delete finalContentObject["amap-coords"];
+            }
+
             if (config?.object?.settings?.content?.merge && data.sha && !schema.list) {
               const octokit = createOctokitInstance(token);
               const response = await octokit.rest.repos.getContent({

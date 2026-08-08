@@ -230,11 +230,29 @@ const fetchCollectionDirectoryEntries = async (
       }
     }
   `;
-  const responseEntries: any = await octokit.graphql(queryEntries, {
-    owner,
-    repo,
-    expression: `${branch}:${dirPath}`,
-  });
+  // 自定义修复：GitHub GraphQL 对大目录（大量 blob.text）偶发
+  // "Something went wrong while executing your query"（GitHub 端瞬态错误），
+  // 重试 3 次指数退避（GitHub 官方推荐的 workaround，社区实测有效）
+  let responseEntries: any = null;
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      responseEntries = await octokit.graphql(queryEntries, {
+        owner,
+        repo,
+        expression: `${branch}:${dirPath}`,
+      });
+      break;
+    } catch (error: unknown) {
+      lastError = error;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  }
+  if (!responseEntries) {
+    throw lastError ?? new Error(`Failed to fetch directory entries for "${dirPath}".`);
+  }
 
   if (!responseEntries.repository) {
     throw new Error(`Repository "${owner}/${repo}" was not found.`);
