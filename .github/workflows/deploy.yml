@@ -1,0 +1,60 @@
+# 部署 PagesCMS 到 Cloudflare Workers
+# 触发：push 到 main
+# 需要的 GitHub Actions secrets（仓库 Settings → Secrets and variables → Actions）：
+#   CLOUDFLARE_API_TOKEN    Cloudflare API Token（Workers Scripts 编辑权限）
+#   CLOUDFLARE_ACCOUNT_ID   Cloudflare 账号 ID
+#   DATABASE_URL            Neon 数据库连接串
+#   GITHUB_APP_ID / GITHUB_APP_NAME / GITHUB_APP_PRIVATE_KEY /
+#   GITHUB_APP_WEBHOOK_SECRET / GITHUB_APP_CLIENT_ID / GITHUB_APP_CLIENT_SECRET
+#   ADMIN_EMAILS / BETTER_AUTH_SECRET / CRYPTO_KEY
+#   IMAGEBED_URL / IMAGEBED_AUTH_CODE / IMAGEBED_FOLDER / AMAP_KEY
+
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build (OpenNext + 数据库迁移)
+        run: npx opennextjs-cloudflare build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BASE_URL: https://cms.tsh520.cn
+          ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
+          GITHUB_APP_ID: ${{ secrets.GITHUB_APP_ID }}
+          GITHUB_APP_NAME: ${{ secrets.GITHUB_APP_NAME }}
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+          GITHUB_APP_WEBHOOK_SECRET: ${{ secrets.GITHUB_APP_WEBHOOK_SECRET }}
+          GITHUB_APP_CLIENT_ID: ${{ secrets.GITHUB_APP_CLIENT_ID }}
+          GITHUB_APP_CLIENT_SECRET: ${{ secrets.GITHUB_APP_CLIENT_SECRET }}
+          IMAGEBED_URL: ${{ secrets.IMAGEBED_URL }}
+          IMAGEBED_AUTH_CODE: ${{ secrets.IMAGEBED_AUTH_CODE }}
+          IMAGEBED_FOLDER: ${{ secrets.IMAGEBED_FOLDER }}
+          AMAP_KEY: ${{ secrets.AMAP_KEY }}
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy --var BASE_URL:https://cms.tsh520.cn
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
