@@ -40,3 +40,7 @@ next-env.d.ts
 
 # Database
 local.db
+
+# OpenNext / wrangler 构建产物
+.open-next/
+.wrangler/
