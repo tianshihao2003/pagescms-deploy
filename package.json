@@ -11,7 +11,7 @@
     "setup:github-app": "node scripts/setup-github-app.mjs",
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "npm run db:migrate",
+    "postbuild": "echo \"数据库迁移在 CI 独立步骤执行（postbuild 跳过）\"",
     "start": "next start",
     "lint": "eslint .",
     "db:generate": "npx drizzle-kit generate",
