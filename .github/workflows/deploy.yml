@@ -37,7 +37,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build (OpenNext + 数据库迁移)
+      # 数据库迁移独立步骤（显式 env，绕开 opennext 子进程的 env 传递问题）
+      - name: 数据库迁移
+        run: npx drizzle-kit migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build (OpenNext)
         run: npx opennextjs-cloudflare build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
