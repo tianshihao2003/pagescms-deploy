@@ -43,5 +43,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: "/:path*"
+	matcher: "/:path*",
+	runtime: "edge",
 }
